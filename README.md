@@ -43,6 +43,12 @@ This utility provides dynamic log level control through LaunchDarkly feature fla
    - Values: `error`, `warn`, `info`, `debug`
    - Useful for debugging flag evaluation issues
 
+   There is intentionally no `none` value for silencing the SDK, even though the
+   SDK's own `LDLogLevel` has one: these four are exactly what the React logger
+   documents, which keeps a single flag portable across both. To silence the SDK,
+   configure the backend directly - `<logger name="com.launchdarkly" level="OFF"/>`
+   for Logback - rather than through a flag.
+
 Unlike the React logger, this library gives you **no new logging API**. It sets
 the level of the real loggers in your application, so every existing
 `LoggerFactory.getLogger(...)` call responds without any code changes — including
@@ -473,6 +479,37 @@ sites cannot emit `FATAL`, so a logger pinned there would discard even
 matching what Logback and JUL can express. If you log through the Log4j 2 API
 directly and want true `FATAL`, supply your own bridge.
 
+## Publishing
+
+Releases are cut by pushing a `v*` tag whose version matches `gradle.properties`;
+the workflow refuses a tag that disagrees. It builds and tests first, including
+the coverage gate, then publishes.
+
+**GitHub Packages** needs no setup - the workflow's `GITHUB_TOKEN` is enough.
+Note that GitHub Packages requires authentication even for public artifacts, so
+consumers need a token to resolve from it.
+
+**Maven Central** needs four repository secrets, and is skipped with a notice if
+`CENTRAL_TOKEN_USERNAME` is absent:
+
+| Secret | What it is |
+| --- | --- |
+| `CENTRAL_TOKEN_USERNAME` | Central Portal user token username |
+| `CENTRAL_TOKEN_PASSWORD` | Central Portal user token password |
+| `SIGNING_KEY` | ASCII-armoured GPG private key. Central requires signed artifacts |
+| `SIGNING_PASSWORD` | Passphrase for that key |
+
+It also needs the `dev.bradbunce` namespace verified in the Central Portal, a
+one-time DNS TXT record on `bradbunce.dev`.
+
+Sonatype has no first-party Gradle plugin for the Central Portal, and OSSRH
+itself reached end of life in June 2025. Rather than take on a third-party
+publishing plugin, the build deploys to Sonatype's Nexus-2-compatible staging
+endpoint, which plain `maven-publish` can target. A deployment uploaded that way
+stays invisible in the Portal until promoted, so the workflow makes the
+follow-up promotion call itself. The final publish confirmation in the Portal
+remains a deliberate manual step.
+
 ## Development
 
 ```bash
@@ -499,6 +536,10 @@ and methods.
 
 The build compiles with `-Xlint:all -Werror` and pins a Java 21 toolchain, so it
 does not depend on whichever JDK happens to be on `PATH`.
+
+`check` also enforces 100% instruction and branch coverage through
+`jacocoTestCoverageVerification`, so an uncovered branch fails the build rather
+than quietly eroding the number.
 
 ## License
 MIT

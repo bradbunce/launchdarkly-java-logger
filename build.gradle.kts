@@ -193,6 +193,45 @@ tasks.check {
         julBackendTestTask)
 }
 
+tasks.jacocoTestCoverageVerification {
+    // Same execution data as the report: coverage is only meaningful across all
+    // five runs, since each reaches paths the others cannot.
+    dependsOn(
+        tasks.test,
+        noBackendTestTask,
+        mismatchedBackendTestTask,
+        log4j2BackendTestTask,
+        julBackendTestTask)
+    executionData(
+        tasks.test.get(),
+        noBackendTestTask.get(),
+        mismatchedBackendTestTask.get(),
+        log4j2BackendTestTask.get(),
+        julBackendTestTask.get())
+
+    violationRules {
+        rule {
+            // The five-task setup exists precisely to reach every branch, so a
+            // drop here is a signal rather than noise. Raise the bar knowingly
+            // rather than letting coverage rot quietly.
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "1.0".toBigDecimal()
+            }
+            limit {
+                counter = "BRANCH"
+                value = "COVEREDRATIO"
+                minimum = "1.0".toBigDecimal()
+            }
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
+}
+
 tasks.jacocoTestReport {
     // Coverage is only meaningful across both test runs, since each covers a
     // path the other cannot reach.
@@ -215,6 +254,36 @@ tasks.jacocoTestReport {
 }
 
 publishing {
+    repositories {
+        // Works with the workflow's GITHUB_TOKEN, so it needs no external setup.
+        // Note that GitHub Packages requires authentication even for public
+        // artifacts, so consumers need a token to resolve from here.
+        maven {
+            name = "githubPackages"
+            url = uri("https://maven.pkg.github.com/bradbunce/launchdarkly-java-logger")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+
+        // Sonatype has no first-party Gradle plugin for the Central Portal, and
+        // OSSRH itself reached end of life in June 2025. This is their
+        // Nexus-2-compatible staging endpoint, which plain maven-publish can
+        // deploy to - avoiding a third-party publishing plugin. A deployment
+        // uploaded this way is not visible in the Portal until it is promoted;
+        // the release workflow does that with a follow-up API call.
+        maven {
+            name = "centralPortal"
+            url = uri(
+                "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
+            credentials {
+                username = System.getenv("CENTRAL_TOKEN_USERNAME")
+                password = System.getenv("CENTRAL_TOKEN_PASSWORD")
+            }
+        }
+    }
+
     publications {
         create<MavenPublication>("maven") {
             from(components["java"])

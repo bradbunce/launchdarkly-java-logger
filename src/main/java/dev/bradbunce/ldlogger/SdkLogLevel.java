@@ -10,6 +10,14 @@ import org.slf4j.event.Level;
  *
  * <p>These mirror {@code com.launchdarkly.logging.LDLogLevel}, which has no
  * {@code TRACE} level.
+ *
+ * <p>{@code LDLogLevel} also has a {@code NONE} value, for disabling the SDK's
+ * logging entirely, which is deliberately not exposed here. The four values
+ * above are exactly what the LaunchDarkly React logger documents, so one flag
+ * stays portable across a browser app and a Java service. An application that
+ * wants the SDK silent can configure its logging backend directly - for Logback,
+ * {@code <logger name="com.launchdarkly" level="OFF"/>} - without needing a flag
+ * value for it.
  */
 public enum SdkLogLevel {
     /** Error conditions only. */

@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  # Lets a release be triggered by hand. Note that neither GitHub Packages nor
+  # Maven Central accepts the same release version twice, so a repeat run for an
+  # already-published version will fail with a conflict.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      CENTRAL_TOKEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
+      CENTRAL_TOKEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
+      SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+      SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      # A tag that disagrees with gradle.properties would publish a version
+      # nobody asked for, so refuse rather than guess.
+      - name: Check the tag matches the project version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          set -euo pipefail
+          project_version="$(grep '^version=' gradle.properties | cut -d= -f2)"
+          tag_version="${GITHUB_REF_NAME#v}"
+          echo "project=$project_version tag=$tag_version"
+          if [ "$project_version" != "$tag_version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match version $project_version in gradle.properties"
+            exit 1
+          fi
+
+      # Never publish something that does not pass its own tests, including the
+      # 100% coverage gate.
+      - name: Build and test
+        run: ./gradlew build
+
+      - name: Publish to GitHub Packages
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew publishMavenPublicationToGithubPackagesRepository
+
+      - name: Publish to Maven Central staging
+        if: env.CENTRAL_TOKEN_USERNAME != ''
+        run: ./gradlew publishMavenPublicationToCentralPortalRepository
+
+      # Deployments uploaded through the Nexus-compatible endpoint stay invisible
+      # in the Portal until promoted, so this is required, not optional.
+      - name: Promote the Central deployment
+        if: env.CENTRAL_TOKEN_USERNAME != ''
+        run: |
+          set -euo pipefail
+          namespace="$(grep '^group=' gradle.properties | cut -d= -f2)"
+          auth="$(printf '%s:%s' "$CENTRAL_TOKEN_USERNAME" "$CENTRAL_TOKEN_PASSWORD" | base64 | tr -d '\n')"
+          status="$(curl -sS -o /tmp/promote.log -w '%{http_code}' -X POST \
+            -H "Authorization: Bearer $auth" \
+            "https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/${namespace}")"
+          echo "promote HTTP $status"
+          cat /tmp/promote.log || true
+          case "$status" in
+            2*) echo "Promoted. Finish the release at https://central.sonatype.com/publishing/deployments" ;;
+            *)  echo "::error::Promotion failed with HTTP $status"; exit 1 ;;
+          esac
+
+      - name: Note when Central publishing is not configured
+        if: env.CENTRAL_TOKEN_USERNAME == ''
+        run: |
+          echo "::notice::Published to GitHub Packages only."
+          echo "::notice::For Maven Central, verify the dev.bradbunce namespace and set the CENTRAL_TOKEN_USERNAME, CENTRAL_TOKEN_PASSWORD, SIGNING_KEY and SIGNING_PASSWORD secrets."
