@@ -68,7 +68,7 @@ loggers captured in `static final` fields long before the flag changed.
    - or your own `LogLevelBridge`, for anything else
 
 3. Create Two Feature Flags:
-   ```java
+   ```text
    // 1. Console Log Level Flag
    {
      key: 'console-log-level',
@@ -540,6 +540,10 @@ does not depend on whichever JDK happens to be on `PATH`.
 `check` also enforces 100% instruction and branch coverage through
 `jacocoTestCoverageVerification`, so an uncovered branch fails the build rather
 than quietly eroding the number.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 MIT

@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.PathSensitivity
+
 plugins {
     `java-library`
     `maven-publish`
@@ -136,6 +138,13 @@ tasks.test {
     testLogging {
         events("passed", "skipped", "failed")
     }
+
+    // ReadmeSnippetsTest reads README.md, which Gradle would not otherwise know
+    // about. Without declaring it, editing the README leaves `test` UP-TO-DATE
+    // and the drift check silently stops running.
+    inputs.file("README.md")
+        .withPropertyName("readme")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
 val noBackendTestTask = tasks.register<Test>("noBackendTest") {
