@@ -325,9 +325,13 @@ publishing {
 
 signing {
     // Only sign when credentials are present, so local builds work unsigned.
+    //
+    // Blank has to count as absent, not just null: GitHub Actions sets an
+    // environment variable backed by a missing secret to the empty string, so a
+    // null-only check enables signing with an empty key and fails the publish.
     val signingKey: String? = System.getenv("SIGNING_KEY")
     val signingPassword: String? = System.getenv("SIGNING_PASSWORD")
-    if (signingKey != null && signingPassword != null) {
+    if (!signingKey.isNullOrBlank() && !signingPassword.isNullOrBlank()) {
         useInMemoryPgpKeys(signingKey, signingPassword)
         sign(publishing.publications["maven"])
     }

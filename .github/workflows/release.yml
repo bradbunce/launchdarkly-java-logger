@@ -55,6 +55,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew publishMavenPublicationToGithubPackagesRepository
 
+      # Maven Central rejects unsigned artifacts, so publishing there without a
+      # signing key would fail late and confusingly. Say so up front.
+      - name: Require a signing key for Maven Central
+        if: env.CENTRAL_TOKEN_USERNAME != '' && env.SIGNING_KEY == ''
+        run: |
+          echo "::error::CENTRAL_TOKEN_USERNAME is set but SIGNING_KEY is not. Maven Central requires signed artifacts; set the SIGNING_KEY and SIGNING_PASSWORD secrets."
+          exit 1
+
       - name: Publish to Maven Central staging
         if: env.CENTRAL_TOKEN_USERNAME != ''
         run: ./gradlew publishMavenPublicationToCentralPortalRepository
