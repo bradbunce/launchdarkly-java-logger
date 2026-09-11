@@ -485,11 +485,15 @@ Releases are cut by pushing a `v*` tag whose version matches `gradle.properties`
 the workflow refuses a tag that disagrees. It builds and tests first, including
 the coverage gate, then publishes.
 
-**GitHub Packages** needs no setup - the workflow's `GITHUB_TOKEN` is enough.
-Note that GitHub Packages requires authentication even for public artifacts, so
-consumers need a token to resolve from it.
+**Maven Central** is the canonical home - consumers just add the dependency, no
+authentication needed. Releases also go to **GitHub Packages**, which needs no
+setup beyond the workflow's `GITHUB_TOKEN`, though it requires authentication
+even for public artifacts and so is not a practical distribution channel.
 
-**Maven Central** needs four repository secrets, and is skipped with a notice if
+A registry will not accept the same release version twice, so a tag push
+publishes to both while a manual re-run goes straight to Central.
+
+Central publishing needs four repository secrets, and is skipped with a notice if
 `CENTRAL_TOKEN_USERNAME` is absent:
 
 | Secret | What it is |
