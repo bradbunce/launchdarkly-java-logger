@@ -1,0 +1,19 @@
+<configuration>
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!--
+    The library's own diagnostics are silenced by default so that tests which
+    deliberately feed it invalid flag values do not spam the build output.
+    LDLogLevelControllerDiagnosticsTest raises this level itself when it needs
+    to assert on a warning.
+  -->
+  <logger name="dev.bradbunce.ldlogger" level="OFF"/>
+
+  <root level="WARN">
+    <appender-ref ref="CONSOLE"/>
+  </root>
+</configuration>
