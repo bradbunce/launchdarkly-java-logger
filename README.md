@@ -499,8 +499,9 @@ consumers need a token to resolve from it.
 | `SIGNING_KEY` | ASCII-armoured GPG private key. Central requires signed artifacts |
 | `SIGNING_PASSWORD` | Passphrase for that key |
 
-It also needs the `io.github.bradbunce` namespace verified in the Central Portal, a
-one-time DNS TXT record on `bradbunce.dev`.
+The `io.github.bradbunce` namespace is already verified in the Central Portal, so
+no DNS work is needed - an `io.github.*` namespace is verified through GitHub
+account ownership rather than a domain.
 
 Sonatype has no first-party Gradle plugin for the Central Portal, and OSSRH
 itself reached end of life in June 2025. Rather than take on a third-party
