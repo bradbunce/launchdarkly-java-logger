@@ -1,0 +1,48 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Java 21 matches the toolchain pinned in build.gradle.kts. There is
+      # deliberately no JDK matrix: the toolchain fixes both compilation and test
+      # execution at 21, so varying the runner's JDK would only change which JVM
+      # the Gradle daemon runs on and would prove nothing about the library.
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      # `build` depends on `check`, which runs all five test tasks: the main
+      # suite plus one per SLF4J backend binding. A single classpath can only
+      # bind one backend, so they cannot be collapsed into one task.
+      - name: Build and test
+        run: ./gradlew build
+
+      - name: Coverage report
+        run: ./gradlew jacocoTestReport
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports
+          path: |
+            build/reports/tests/
+            build/reports/jacoco/
+          if-no-files-found: warn
+          retention-days: 14
