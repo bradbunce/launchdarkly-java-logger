@@ -89,4 +89,4 @@ jobs:
         if: env.CENTRAL_TOKEN_USERNAME == ''
         run: |
           echo "::notice::Published to GitHub Packages only."
-          echo "::notice::For Maven Central, verify the dev.bradbunce namespace and set the CENTRAL_TOKEN_USERNAME, CENTRAL_TOKEN_PASSWORD, SIGNING_KEY and SIGNING_PASSWORD secrets."
+          echo "::notice::For Maven Central, verify the io.github.bradbunce namespace and set the CENTRAL_TOKEN_USERNAME, CENTRAL_TOKEN_PASSWORD, SIGNING_KEY and SIGNING_PASSWORD secrets."

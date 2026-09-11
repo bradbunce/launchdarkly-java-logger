@@ -121,7 +121,7 @@ loggers captured in `static final` fields long before the flag changed.
    ```kotlin
    // Gradle (build.gradle.kts)
    dependencies {
-       implementation("dev.bradbunce:launchdarkly-java-logger:1.0.0")
+       implementation("io.github.bradbunce:launchdarkly-java-logger:1.0.0")
 
        // You supply these two — see Requirements below
        implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.16.0")
@@ -135,7 +135,7 @@ loggers captured in `static final` fields long before the flag changed.
    ```xml
    <!-- Maven (pom.xml) -->
    <dependency>
-     <groupId>dev.bradbunce</groupId>
+     <groupId>io.github.bradbunce</groupId>
      <artifactId>launchdarkly-java-logger</artifactId>
      <version>1.0.0</version>
    </dependency>
@@ -150,7 +150,7 @@ loggers captured in `static final` fields long before the flag changed.
    ```java
    import com.launchdarkly.sdk.server.LDClient;
    import com.launchdarkly.sdk.server.LDConfig;
-   import dev.bradbunce.ldlogger.LDSdkLogging;
+   import io.github.bradbunce.ldlogger.LDSdkLogging;
 
    LDConfig config = new LDConfig.Builder()
        .logging(LDSdkLogging.slf4j())
@@ -186,7 +186,7 @@ loggers captured in `static final` fields long before the flag changed.
 
    ```java
    import com.launchdarkly.sdk.LDContext;
-   import dev.bradbunce.ldlogger.LDLogLevelController;
+   import io.github.bradbunce.ldlogger.LDLogLevelController;
 
    // Log levels are resolved against one context representing the service or
    // instance, so targeting rules can vary the level by environment or region.
@@ -357,7 +357,7 @@ LDLogLevelController.builder(client, serverContext)
 ```
 
 or register it as a `java.util.ServiceLoader` service for
-`dev.bradbunce.ldlogger.LogLevelBridge`, in which case `detect()` finds it
+`io.github.bradbunce.ldlogger.LogLevelBridge`, in which case `detect()` finds it
 automatically and prefers it over the built-in bridges.
 
 Note that bridges receive `LogLevel`, not SLF4J's `Level`. That is deliberate:
@@ -499,7 +499,7 @@ consumers need a token to resolve from it.
 | `SIGNING_KEY` | ASCII-armoured GPG private key. Central requires signed artifacts |
 | `SIGNING_PASSWORD` | Passphrase for that key |
 
-It also needs the `dev.bradbunce` namespace verified in the Central Portal, a
+It also needs the `io.github.bradbunce` namespace verified in the Central Portal, a
 one-time DNS TXT record on `bradbunce.dev`.
 
 Sonatype has no first-party Gradle plugin for the Central Portal, and OSSRH

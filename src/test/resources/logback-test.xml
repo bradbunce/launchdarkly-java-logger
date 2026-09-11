@@ -11,7 +11,7 @@
     LDLogLevelControllerDiagnosticsTest raises this level itself when it needs
     to assert on a warning.
   -->
-  <logger name="dev.bradbunce.ldlogger" level="OFF"/>
+  <logger name="io.github.bradbunce.ldlogger" level="OFF"/>
 
   <root level="WARN">
     <appender-ref ref="CONSOLE"/>
