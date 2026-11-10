@@ -49,4 +49,4 @@ First release.
   dependencies, so this library never forces a version on an application that
   already depends on them.
 
-[1.0.0]: https://github.com/bradbunce/launchdarkly-java-logger/releases/tag/v1.0.0
+[1.0.0]: https://github.com/launchdarkly-labs/launchdarkly-java-logger/releases/tag/v1.0.0

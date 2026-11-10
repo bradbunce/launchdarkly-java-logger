@@ -269,7 +269,7 @@ publishing {
         // artifacts, so consumers need a token to resolve from here.
         maven {
             name = "githubPackages"
-            url = uri("https://maven.pkg.github.com/bradbunce/launchdarkly-java-logger")
+            url = uri("https://maven.pkg.github.com/launchdarkly-labs/launchdarkly-java-logger")
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
                 password = System.getenv("GITHUB_TOKEN")
@@ -299,7 +299,7 @@ publishing {
             pom {
                 name = "LaunchDarkly Java Logger"
                 description = project.description
-                url = "https://github.com/bradbunce/launchdarkly-java-logger"
+                url = "https://github.com/launchdarkly-labs/launchdarkly-java-logger"
                 licenses {
                     license {
                         name = "MIT License"
@@ -314,9 +314,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = "scm:git:https://github.com/bradbunce/launchdarkly-java-logger.git"
-                    developerConnection = "scm:git:ssh://github.com/bradbunce/launchdarkly-java-logger.git"
-                    url = "https://github.com/bradbunce/launchdarkly-java-logger"
+                    connection = "scm:git:https://github.com/launchdarkly-labs/launchdarkly-java-logger.git"
+                    developerConnection = "scm:git:ssh://github.com/launchdarkly-labs/launchdarkly-java-logger.git"
+                    url = "https://github.com/launchdarkly-labs/launchdarkly-java-logger"
                 }
             }
         }
