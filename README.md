@@ -124,11 +124,11 @@ loggers captured in `static final` fields long before the flag changed.
        implementation("io.github.bradbunce:launchdarkly-java-logger:1.0.0")
 
        // You supply these two — see Requirements below
-       implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.16.0")
+       implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.17.5")
 
        // Any supported backend. Logback shown here; Log4j 2 and
        // java.util.logging work equally well.
-       runtimeOnly("ch.qos.logback:logback-classic:1.6.3")
+       runtimeOnly("ch.qos.logback:logback-classic:1.6.6")
    }
    ```
 
