@@ -51,9 +51,9 @@ val mismatchedBackendTest: SourceSet = sourceSets.create("mismatchedBackendTest"
     runtimeClasspath += output + compileClasspath
 }
 
-val launchDarklySdkVersion = "7.16.0"
-val logbackVersion = "1.6.3"
-val slf4jVersion = "2.0.19"
+val launchDarklySdkVersion = "7.17.5"
+val logbackVersion = "1.6.6"
+val slf4jVersion = "2.0.20"
 val log4jVersion = "2.26.1"
 val junitVersion = "6.1.3"
 val assertjVersion = "3.27.7"
